@@ -26,10 +26,7 @@ function Send-Email {
 }
 
 # Endlosschleife, um das Skript zu wiederholen, bis alle Dateien gesendet wurden
-while ($true) {
-    # Überprüfe, ob im Zielordner neue Dateien vorhanden sind
-    $NewestFile = Get-ChildItem -Path $FolderPath | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-
+while ($true) {https://www.ecovacs.com/de/shop/signin?callback=%2Faccount%2F
     if ($NewestFile) {
         # Prüfe, ob die Datei bereits im Protokoll verzeichnet ist
         if (-Not (Test-Path $LogFilePath)) {
@@ -51,6 +48,28 @@ while ($true) {
     } else {
         Write-Host "Keine neue Datei im Zielordner gefunden. Das Skript wird beendet."
         break  # Beende die Endlosschleife, wenn keine neuen Dateien mehr vorhanden sind
+    }
+
+    # Warte für eine Stunde, bevor das Skript erneut überprüft wird
+    Start-Sleep -Seconds 3600
+}
+
+
+
+# Endlosschleife, um das Skript zu wiederholen, bis es manuell beendet wird
+while ($true) {
+    # Überprüfe, ob im Zielordner neue Dateien vorhanden sind
+    $FilesToBeSent = Get-ChildItem -Path $FolderPath
+
+    if ($FilesToBeSent.Count -gt 0) {
+        foreach ($file in $FilesToBeSent) {
+            # Sende jede Datei im Zielordner per E-Mail
+            Send-Email -From $FromEmail -To $ToEmail -Subject $Subject -Body $Body -AttachmentPath $file.FullName
+
+            Write-Host "Die Datei wurde gesendet: $($file.Name)"
+        }
+    } else {
+        Write-Host "Keine neue Datei im Zielordner gefunden. Das Skript wird pausiert."
     }
 
     # Warte für eine Stunde, bevor das Skript erneut überprüft wird
